@@ -26,6 +26,14 @@ const Journal = () => {
         isPrivate: false,
     });
     const [saving, setSaving] = useState(false);
+    const [editingEntry, setEditingEntry] = useState(null);
+    const [editEntry, setEditEntry] = useState({
+        title: '',
+        content: '',
+        mood: 'neutral',
+        tags: '',
+        isPrivate: false,
+    });
 
     useEffect(() => {
         loadJournals();
@@ -74,6 +82,60 @@ const Journal = () => {
         } else {
             Alert.alert('Error', result.error);
         }
+    };
+
+    const handleEditEntry = (item) => {
+        setEditingEntry(item.$id);
+        setEditEntry({
+            title: item.title,
+            content: item.content,
+            mood: item.mood,
+            tags: item.tags ? item.tags.join(', ') : '',
+            isPrivate: item.isPrivate,
+        });
+        setShowNewEntry(false); // Close new entry form if open
+    };
+
+    const handleUpdateEntry = async () => {
+        if (!editEntry.title.trim() || !editEntry.content.trim()) {
+            Alert.alert('Error', 'Please fill in title and content');
+            return;
+        }
+
+        setSaving(true);
+        const entryData = {
+            ...editEntry,
+            tags: editEntry.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        };
+
+        const result = await UserProfileService.updateJournalEntry(editingEntry, entryData);
+        setSaving(false);
+
+        if (result.success) {
+            Alert.alert('Success', 'Journal entry updated successfully');
+            setEditingEntry(null);
+            setEditEntry({
+                title: '',
+                content: '',
+                mood: 'neutral',
+                tags: '',
+                isPrivate: false,
+            });
+            loadJournals();
+        } else {
+            Alert.alert('Error', result.error);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingEntry(null);
+        setEditEntry({
+            title: '',
+            content: '',
+            mood: 'neutral',
+            tags: '',
+            isPrivate: false,
+        });
     };
 
     const handleDeleteEntry = async (entryId) => {
@@ -148,7 +210,13 @@ const Journal = () => {
             
             <View style={styles.journalActions}>
                 <TouchableOpacity
-                    style={styles.actionButton}
+                    style={[styles.actionButton, styles.editButton]}
+                    onPress={() => handleEditEntry(item)}
+                >
+                    <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.actionButton, styles.deleteButton]}
                     onPress={() => handleDeleteEntry(item.$id)}
                 >
                     <Text style={styles.deleteButtonText}>Delete</Text>
@@ -180,7 +248,84 @@ const Journal = () => {
                 </TouchableOpacity>
             </View>
 
-            {showNewEntry && (
+            {editingEntry && (
+                <View style={styles.newEntryForm}>
+                    <Text style={styles.formTitle}>Edit Journal Entry</Text>
+                    <TextInput
+                        style={styles.titleInput}
+                        placeholder="Entry Title"
+                        value={editEntry.title}
+                        onChangeText={(text) => setEditEntry({ ...editEntry, title: text })}
+                    />
+                    
+                    <TextInput
+                        style={styles.contentInput}
+                        placeholder="Write your thoughts..."
+                        value={editEntry.content}
+                        onChangeText={(text) => setEditEntry({ ...editEntry, content: text })}
+                        multiline
+                        numberOfLines={6}
+                    />
+                    
+                    <View style={styles.moodContainer}>
+                        <Text style={styles.moodLabel}>Mood:</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            {['happy', 'sad', 'angry', 'excited', 'calm', 'anxious', 'neutral'].map((mood) => (
+                                <TouchableOpacity
+                                    key={mood}
+                                    style={[
+                                        styles.moodButton,
+                                        editEntry.mood === mood && styles.selectedMoodButton
+                                    ]}
+                                    onPress={() => setEditEntry({ ...editEntry, mood })}
+                                >
+                                    <Text style={styles.moodButtonText}>
+                                        {getMoodEmoji(mood)}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                    
+                    <TextInput
+                        style={styles.tagsInput}
+                        placeholder="Tags (comma separated)"
+                        value={editEntry.tags}
+                        onChangeText={(text) => setEditEntry({ ...editEntry, tags: text })}
+                    />
+                    
+                    <TouchableOpacity
+                        style={styles.privateToggle}
+                        onPress={() => setEditEntry({ ...editEntry, isPrivate: !editEntry.isPrivate })}
+                    >
+                        <Text style={styles.privateToggleText}>
+                            {editEntry.isPrivate ? '🔒 Private' : '🌐 Public'}
+                        </Text>
+                    </TouchableOpacity>
+                    
+                    <View style={styles.editButtonsContainer}>
+                        <TouchableOpacity
+                            style={[styles.saveButton, styles.cancelEditButton]}
+                            onPress={handleCancelEdit}
+                        >
+                            <Text style={styles.cancelEditButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+                            onPress={handleUpdateEntry}
+                            disabled={saving}
+                        >
+                            {saving ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.saveButtonText}>Update Entry</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
+
+            {showNewEntry && !editingEntry && (
                 <View style={styles.newEntryForm}>
                     <TextInput
                         style={styles.titleInput}
@@ -456,12 +601,44 @@ const styles = StyleSheet.create({
     actionButton: {
         paddingHorizontal: 15,
         paddingVertical: 8,
-        backgroundColor: '#FF3B30',
         borderRadius: 6,
+        marginLeft: 10,
+    },
+    editButton: {
+        backgroundColor: '#007AFF',
+    },
+    editButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    deleteButton: {
+        backgroundColor: '#FF3B30',
     },
     deleteButtonText: {
         color: '#fff',
         fontSize: 14,
+        fontWeight: '600',
+    },
+    formTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    editButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    cancelEditButton: {
+        backgroundColor: '#FF3B30',
+        flex: 0.45,
+        marginRight: 10,
+    },
+    cancelEditButtonText: {
+        color: '#fff',
+        fontSize: 16,
         fontWeight: '600',
     },
     loadingContainer: {
