@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Home from './components/Home';
+import Profile from './components/Profile';
+import Journal from './components/Journal';
 import Loading from './components/Loading';
 
 const Stack = createStackNavigator();
@@ -23,7 +25,11 @@ const Navigation = () => {
             }}
         >
             {user ? (
-                <Stack.Screen name="Home" component={Home} />
+                <>
+                    <Stack.Screen name="Home" component={Home} />
+                    <Stack.Screen name="Profile" component={Profile} />
+                    <Stack.Screen name="Journal" component={Journal} />
+                </>
             ) : (
                 <>
                     <Stack.Screen name="SignIn" component={SignIn} />
