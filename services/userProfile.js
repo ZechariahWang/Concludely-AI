@@ -1,5 +1,6 @@
 import { databases, account } from '../appwrite';
 import { ID, Query, Permission, Role } from 'appwrite';
+import { ProfilePictureService } from './profilePicture';
 
 // Database and collection IDs - you'll need to create these in Appwrite
 const DATABASE_ID = '68aa6b3b002b82a435cb'; // Replace with your database ID
@@ -47,6 +48,7 @@ export class UserProfileService {
                 name: userData.name,
                 email: userData.email,
                 profilePicture: userData.profilePicture || '',
+                profilePictureFileId: userData.profilePictureFileId || '',
                 bio: userData.bio || '',
                 dateOfBirth: userData.dateOfBirth || '',
                 theme: preferences.theme || 'light',
@@ -118,6 +120,70 @@ export class UserProfileService {
                 });
                 return createResult;
             }
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Update profile picture
+    static async updateProfilePicture(userId, profilePictureFile, oldProfilePictureFileId = null) {
+        try {
+            console.log('Uploading profile picture for user:', userId);
+            
+            // Upload new profile picture using SDK
+            const uploadResult = await ProfilePictureService.uploadProfilePicture(profilePictureFile, userId);
+            
+            if (!uploadResult.success) {
+                console.error('Upload failed:', uploadResult.error);
+                return uploadResult;
+            }
+
+            console.log('Upload successful:', uploadResult);
+
+            // Update user profile with new picture URL and file ID
+            const profileUpdateData = {
+                profilePicture: uploadResult.data.url,
+                profilePictureFileId: uploadResult.data.fileId
+            };
+            
+            console.log('Updating profile with:', profileUpdateData);
+            
+            const updateResult = await this.updateUserProfile(userId, profileUpdateData);
+
+            if (!updateResult.success) {
+                // If profile update fails, clean up the uploaded file
+                await ProfilePictureService.deleteProfilePicture(uploadResult.data.fileId);
+                return updateResult;
+            }
+
+            // Delete old profile picture if it exists
+            if (oldProfilePictureFileId) {
+                await ProfilePictureService.deleteProfilePicture(oldProfilePictureFileId);
+            }
+
+            return updateResult;
+        } catch (error) {
+            console.error('Error updating profile picture:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Remove profile picture
+    static async removeProfilePicture(userId, profilePictureFileId) {
+        try {
+            // Delete the file from storage
+            if (profilePictureFileId) {
+                await ProfilePictureService.deleteProfilePicture(profilePictureFileId);
+            }
+
+            // Update user profile to remove picture URL and file ID
+            const updateResult = await this.updateUserProfile(userId, {
+                profilePicture: '',
+                profilePictureFileId: ''
+            });
+
+            return updateResult;
+        } catch (error) {
+            console.error('Error removing profile picture:', error);
             return { success: false, error: error.message };
         }
     }

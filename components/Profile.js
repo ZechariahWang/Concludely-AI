@@ -9,13 +9,17 @@ import {
     ActivityIndicator,
     ScrollView,
     Image,
+    Platform,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { UserProfileService } from '../services/userProfile';
 import { useAuth } from '../contexts/AuthContext';
 
 const Profile = () => {
-    const { userProfile, updateProfile } = useAuth();
+    const { userProfile, updateProfile, user, refreshProfile } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
     const [formData, setFormData] = useState({
         name: userProfile?.name || '',
         bio: userProfile?.bio || '',
@@ -59,6 +63,141 @@ const Profile = () => {
         setIsEditing(false);
     };
 
+    const selectImage = () => {
+        Alert.alert(
+            'Select Image',
+            'Choose from where you want to select an image',
+            [
+                { text: 'Camera', onPress: () => openImagePicker('camera') },
+                { text: 'Gallery', onPress: () => openImagePicker('gallery') },
+                { text: 'Remove Photo', onPress: () => removeProfilePicture() },
+                { text: 'Cancel', style: 'cancel' }
+            ]
+        );
+    };
+
+    const openImagePicker = async (source) => {
+        try {
+            let permissionResult;
+            
+            if (source === 'camera') {
+                permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+            } else {
+                permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            }
+
+            if (permissionResult.granted === false) {
+                Alert.alert('Permission needed', 'Permission to access media library is required!');
+                return;
+            }
+
+            let result;
+            if (source === 'camera') {
+                result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 0.8,
+                });
+            } else {
+                result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 0.8,
+                });
+            }
+
+            if (!result.canceled && result.assets?.[0]) {
+                await uploadProfilePicture(result.assets[0]);
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to select image');
+            console.error('Image picker error:', error);
+        }
+    };
+
+    const uploadProfilePicture = async (imageAsset) => {
+        if (!user) return;
+        
+        setUploadingImage(true);
+        
+        try {
+            console.log('Image asset:', imageAsset);
+            
+            // Create a file object compatible with Appwrite
+            // Keep filename short to avoid Appwrite's 100 char limit
+            const fileName = `prof_${Date.now()}.jpg`;
+            const fileType = imageAsset.mimeType || 'image/jpeg';
+            
+            // For React Native, we need to create a File-like object
+            // that works with Appwrite's createFile method
+            const file = {
+                uri: imageAsset.uri,
+                name: fileName,
+                type: fileType,
+                size: imageAsset.fileSize || undefined
+            };
+
+            console.log('File object:', file);
+
+            const result = await UserProfileService.updateProfilePicture(
+                user.$id, 
+                file, 
+                userProfile?.profilePictureFileId
+            );
+            
+            if (result.success) {
+                await refreshProfile();
+                Alert.alert('Success', 'Profile picture updated successfully');
+            } else {
+                Alert.alert('Error', result.error || 'Failed to upload profile picture');
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to upload profile picture');
+            console.error('Upload error:', error);
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
+    const removeProfilePicture = async () => {
+        if (!user || !userProfile?.profilePictureFileId) return;
+        
+        Alert.alert(
+            'Remove Photo',
+            'Are you sure you want to remove your profile picture?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { 
+                    text: 'Remove', 
+                    style: 'destructive',
+                    onPress: async () => {
+                        setUploadingImage(true);
+                        try {
+                            const result = await UserProfileService.removeProfilePicture(
+                                user.$id,
+                                userProfile.profilePictureFileId
+                            );
+                            
+                            if (result.success) {
+                                await refreshProfile();
+                                Alert.alert('Success', 'Profile picture removed successfully');
+                            } else {
+                                Alert.alert('Error', result.error || 'Failed to remove profile picture');
+                            }
+                        } catch (error) {
+                            Alert.alert('Error', 'Failed to remove profile picture');
+                            console.error('Remove error:', error);
+                        } finally {
+                            setUploadingImage(false);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
@@ -84,8 +223,16 @@ const Profile = () => {
                         style={styles.profilePicture}
                     />
                     {isEditing && (
-                        <TouchableOpacity style={styles.changePhotoButton}>
-                            <Text style={styles.changePhotoText}>Change Photo</Text>
+                        <TouchableOpacity 
+                            style={styles.changePhotoButton}
+                            onPress={selectImage}
+                            disabled={uploadingImage}
+                        >
+                            {uploadingImage ? (
+                                <ActivityIndicator color="#fff" size="small" />
+                            ) : (
+                                <Text style={styles.changePhotoText}>Change Photo</Text>
+                            )}
                         </TouchableOpacity>
                     )}
                 </View>

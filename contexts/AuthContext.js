@@ -128,6 +128,48 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Profile picture management functions
+    const updateProfilePicture = async (profilePictureFile) => {
+        if (!user) return { success: false, error: 'User not authenticated' };
+        
+        try {
+            const result = await UserProfileService.updateProfilePicture(
+                user.$id,
+                profilePictureFile,
+                userProfile?.profilePictureFileId
+            );
+            
+            if (result.success) {
+                setUserProfile(result.data);
+            }
+            return result;
+        } catch (error) {
+            console.error('Error in updateProfilePicture:', error);
+            return { success: false, error: error.message };
+        }
+    };
+
+    const removeProfilePicture = async () => {
+        if (!user || !userProfile?.profilePictureFileId) {
+            return { success: false, error: 'No profile picture to remove' };
+        }
+        
+        try {
+            const result = await UserProfileService.removeProfilePicture(
+                user.$id,
+                userProfile.profilePictureFileId
+            );
+            
+            if (result.success) {
+                setUserProfile(result.data);
+            }
+            return result;
+        } catch (error) {
+            console.error('Error in removeProfilePicture:', error);
+            return { success: false, error: error.message };
+        }
+    };
+
     const value = {
         user,
         userProfile,
@@ -137,6 +179,8 @@ export const AuthProvider = ({ children }) => {
         signOut,
         updateProfile,
         refreshProfile,
+        updateProfilePicture,
+        removeProfilePicture,
     };
 
     return (
