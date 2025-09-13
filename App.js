@@ -1,13 +1,14 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
-import Home from './components/Home';
-import Profile from './components/Profile';
-import Journal from './components/Journal';
-import Loading from './components/Loading';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import SignIn from './src/screens/auth/SignIn';
+import SignUp from './src/screens/auth/SignUp';
+import Home from './src/screens/home/Home';
+import Profile from './src/screens/profile/Profile';
+import Journal from './src/screens/journal/Journal';
+import Loading from './src/components/common/Loading';
+import MainTabNavigator from './src/components/navigation/MainTabNavigator';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,31 @@ const Navigation = () => {
         return <Loading />;
     }
 
+    const MainStackScreen = ({ route }) => {
+        const { name } = route;
+        let ScreenComponent;
+
+        switch (name) {
+            case 'Home':
+                ScreenComponent = Home;
+                break;
+            case 'Profile':
+                ScreenComponent = Profile;
+                break;
+            case 'Journal':
+                ScreenComponent = Journal;
+                break;
+            default:
+                ScreenComponent = Home;
+        }
+
+        return (
+            <MainTabNavigator>
+                <ScreenComponent />
+            </MainTabNavigator>
+        );
+    };
+
     return (
         <Stack.Navigator
             screenOptions={{
@@ -26,9 +52,9 @@ const Navigation = () => {
         >
             {user ? (
                 <>
-                    <Stack.Screen name="Home" component={Home} />
-                    <Stack.Screen name="Profile" component={Profile} />
-                    <Stack.Screen name="Journal" component={Journal} />
+                    <Stack.Screen name="Home" component={MainStackScreen} />
+                    <Stack.Screen name="Profile" component={MainStackScreen} />
+                    <Stack.Screen name="Journal" component={MainStackScreen} />
                 </>
             ) : (
                 <>
