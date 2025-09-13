@@ -1,8 +1,6 @@
-import { account } from '../../config/appwrite';
+import { account, config } from '../../config/appwrite';
 
-const BUCKET_ID = 'profile-pictures';
-const PROJECT_ID = '68aa6487001bd857be83';
-const ENDPOINT = 'https://nyc.cloud.appwrite.io/v1';
+const { profilePicturesBucketId: BUCKET_ID, projectId: PROJECT_ID, endpoint: ENDPOINT } = config;
 
 export class ProfilePictureHTTPService {
     static async uploadProfilePicture(file, userId) {
