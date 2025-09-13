@@ -1,11 +1,9 @@
-import { databases, account } from '../../config/appwrite';
+import { databases, account, config } from '../../config/appwrite';
 import { ID, Query, Permission, Role } from 'appwrite';
 import { ProfilePictureService } from '../storage/profilePicture';
 
-// Database and collection IDs - you'll need to create these in Appwrite
-const DATABASE_ID = '68aa6b3b002b82a435cb'; // Replace with your database ID
-const USERS_COLLECTION_ID = 'users';
-const JOURNALS_COLLECTION_ID = 'journals';
+// Use configuration from environment variables
+const { databaseId: DATABASE_ID, usersCollectionId: USERS_COLLECTION_ID, journalsCollectionId: JOURNALS_COLLECTION_ID } = config;
 
 export class UserProfileService {
     // Get user profile data

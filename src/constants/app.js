@@ -1,9 +1,5 @@
-export const DATABASE_ID = '68aa6b3b002b82a435cb';
-export const USERS_COLLECTION_ID = 'users';
-export const JOURNALS_COLLECTION_ID = 'journals';
-export const BUCKET_ID = 'profile-pictures';
-export const PROJECT_ID = '68aa6487001bd857be83';
-export const ENDPOINT = 'https://nyc.cloud.appwrite.io/v1';
+// Configuration constants are now imported from appwrite config which uses environment variables
+// These exports remain for backwards compatibility but should use the config object instead
 
 export const MOODS = [
   { value: 'happy', label: 'Happy', emoji: '😊' },

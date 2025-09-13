@@ -1,8 +1,8 @@
-import { storage, account } from '../../config/appwrite';
+import { storage, account, config } from '../../config/appwrite';
 import { ID, Permission, Role } from 'appwrite';
 import * as FileSystem from 'expo-file-system';
 
-const BUCKET_ID = 'profile-pictures'; // You'll need to create this bucket in Appwrite
+const BUCKET_ID = config.profilePicturesBucketId;
 
 export class ProfilePictureService {
     static async uploadProfilePicture(file, userId) {
@@ -60,12 +60,12 @@ export class ProfilePictureService {
                 console.log('Current user for upload:', user.$id);
                 
                 // Make direct API call
-                const uploadUrl = `https://nyc.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files`;
+                const uploadUrl = `${config.endpoint}/storage/buckets/${BUCKET_ID}/files`;
                 
                 const response = await fetch(uploadUrl, {
                     method: 'POST',
                     headers: {
-                        'X-Appwrite-Project': '68aa6487001bd857be83',
+                        'X-Appwrite-Project': config.projectId,
                         // Don't set Content-Type for FormData - let browser set it
                     },
                     body: formData,
@@ -115,11 +115,11 @@ export class ProfilePictureService {
 
     static getFilePreview(fileId, width = 300, height = 300) {
         // Use getFileView URL instead of getFilePreview for better compatibility
-        return `https://nyc.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=68aa6487001bd857be83`;
+        return `${config.endpoint}/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=${config.projectId}`;
     }
 
     static getFileView(fileId) {
-        return `https://nyc.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=68aa6487001bd857be83`;
+        return `${config.endpoint}/storage/buckets/${BUCKET_ID}/files/${fileId}/view?project=${config.projectId}`;
     }
 
     static async updateProfilePicture(oldFileId, newFile, userId) {
