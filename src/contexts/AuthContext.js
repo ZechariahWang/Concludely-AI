@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    useEffect(() => { // lol
         checkUser();
     }, []);
 
