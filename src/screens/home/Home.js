@@ -1,8 +1,6 @@
 import React from 'react';
 import {
     View,
-    Text,
-    TouchableOpacity,
     StyleSheet,
     Alert,
     ScrollView,
@@ -10,7 +8,7 @@ import {
     StatusBar,
 } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { THEMES, TYPOGRAPHY, SPACING, RADIUS } from '../../constants/app';
+import { Button, Card, Text, Icon, THEMES, SPACING, RADIUS } from '../../components/ui';
 
 const Home = ({ navigation }) => {
     const { user, userProfile, signOut } = useAuth();
@@ -44,76 +42,116 @@ const Home = ({ navigation }) => {
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
-            <ScrollView 
+            <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
+                {/* Header Section */}
                 <View style={styles.header}>
-                    <Text style={[styles.greeting, { color: theme.textSecondary }]}>Good day,</Text>
-                    <Text style={[styles.title, { color: theme.text }]}>{firstName}! 👋</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>
+                    <Text variant="display">Hey {firstName},</Text>
+                    <Text variant="muted" style={styles.subtitle}>
                         Ready to capture today's thoughts?
                     </Text>
                 </View>
 
-                <View style={[styles.statsCard, { backgroundColor: theme.surfaceElevated }]}>
-                    <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: theme.primary }]}>0</Text>
-                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Entries this week</Text>
-                    </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: theme.secondary }]}>0</Text>
-                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Total entries</Text>
-                    </View>
+                {/* Stats Cards */}
+                <View style={styles.statsGrid}>
+                    <Card variant="elevated" size="sm" style={styles.statCard}>
+                        <Text variant="h2" color={theme.primary}>0</Text>
+                        <Text variant="small" style={styles.statLabel}>Entries this week</Text>
+                    </Card>
+                    <Card variant="elevated" size="sm" style={styles.statCard}>
+                        <Text variant="h2" color={theme.success}>0</Text>
+                        <Text variant="small" style={styles.statLabel}>Total entries</Text>
+                    </Card>
                 </View>
 
-                <View style={styles.menuSection}>
-                    <Text style={[styles.menuTitle, { color: theme.text }]}>Quick Actions</Text>
-                    
-                    <TouchableOpacity 
-                        style={[styles.menuButton, styles.primaryButton, { backgroundColor: theme.primary }]}
-                        onPress={() => navigation.navigate('Journal')}
-                        activeOpacity={0.7}
-                    >
-                        <View style={styles.buttonIcon}>
-                            <Text style={styles.buttonEmoji}>✍️</Text>
-                        </View>
-                        <View style={styles.buttonContent}>
-                            <Text style={styles.primaryButtonText}>Write New Entry</Text>
-                            <Text style={styles.primaryButtonSubtext}>Capture your thoughts and feelings</Text>
-                        </View>
-                    </TouchableOpacity>
+                {/* Quick Actions */}
+                <View style={styles.section}>
+                    <Text variant="h3" style={styles.sectionTitle}>Quick Actions</Text>
+
+                    <Card variant="elevated" style={styles.primaryActionCard}>
+                        <Card.Content>
+                            <View style={styles.primaryAction}>
+                                <View style={styles.actionIcon}>
+                                    <Icon name="edit-3" size={24} color={theme.primary} />
+                                </View>
+                                <View style={styles.actionContent}>
+                                    <Text variant="h4">Write New Entry</Text>
+                                    <Text variant="muted">Capture your thoughts and feelings</Text>
+                                </View>
+                            </View>
+                            <Button
+                                onPress={() => navigation.navigate('Journal')}
+                                size="lg"
+                                style={styles.primaryButton}
+                            >
+                                Start Writing
+                            </Button>
+                        </Card.Content>
+                    </Card>
 
                     <View style={styles.secondaryActions}>
-                        <TouchableOpacity 
-                            style={[styles.secondaryButton, { backgroundColor: theme.surfaceElevated }]}
-                            onPress={() => navigation.navigate('Journal')}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={styles.secondaryButtonEmoji}>📚</Text>
-                            <Text style={[styles.secondaryButtonText, { color: theme.text }]}>My Journal</Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity 
-                            style={[styles.secondaryButton, { backgroundColor: theme.surfaceElevated }]}
-                            onPress={() => navigation.navigate('Profile')}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={styles.secondaryButtonEmoji}>👤</Text>
-                            <Text style={[styles.secondaryButtonText, { color: theme.text }]}>Profile</Text>
-                        </TouchableOpacity>
+                        <Card variant="outlined" style={styles.secondaryActionCard}>
+                            <Card.Content style={styles.secondaryActionContent}>
+                                <Icon name="book-open" size={32} color={theme.mutedForeground} style={styles.secondaryActionIcon} />
+                                <Text variant="bodyMedium" style={styles.secondaryActionTitle}>Journal</Text>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onPress={() => navigation.navigate('Journal')}
+                                >
+                                    View
+                                </Button>
+                            </Card.Content>
+                        </Card>
+
+                        <Card variant="outlined" style={styles.secondaryActionCard}>
+                            <Card.Content style={styles.secondaryActionContent}>
+                                <Icon name="user" size={32} color={theme.mutedForeground} style={styles.secondaryActionIcon} />
+                                <Text variant="bodyMedium" style={styles.secondaryActionTitle}>Profile</Text>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onPress={() => navigation.navigate('Profile')}
+                                >
+                                    Edit
+                                </Button>
+                            </Card.Content>
+                        </Card>
                     </View>
                 </View>
 
-                <TouchableOpacity 
-                    style={[styles.signOutButton, { backgroundColor: theme.surface, borderColor: theme.border }]} 
+                {/* Recent Activity */}
+                <View style={styles.section}>
+                    <Text variant="h3" style={styles.sectionTitle}>Recent Activity</Text>
+                    <Card variant="outlined">
+                        <Card.Content style={styles.emptyState}>
+                            <Icon name="file-text" size={48} color={theme.mutedForeground} style={styles.emptyStateIcon} />
+                            <Text variant="h4" style={styles.emptyStateTitle}>No entries yet</Text>
+                            <Text variant="muted" style={styles.emptyStateDescription}>
+                                Start your journaling journey by writing your first entry
+                            </Text>
+                            <Button
+                                variant="outline"
+                                onPress={() => navigation.navigate('Journal')}
+                                style={styles.emptyStateButton}
+                            >
+                                Write First Entry
+                            </Button>
+                        </Card.Content>
+                    </Card>
+                </View>
+
+                {/* Sign Out */}
+                <Button
+                    variant="destructive"
                     onPress={handleSignOut}
-                    activeOpacity={0.7}
+                    style={styles.signOutButton}
                 >
-                    <Text style={[styles.signOutButtonText, { color: theme.error }]}>Sign Out</Text>
-                </TouchableOpacity>
+                    Sign Out
+                </Button>
             </ScrollView>
         </SafeAreaView>
     );
@@ -127,142 +165,98 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        padding: SPACING.lg,
-        paddingBottom: SPACING.xl,
+        padding: SPACING[6],
+        paddingBottom: SPACING[10],
     },
     header: {
         alignItems: 'center',
-        marginTop: SPACING.lg,
-        marginBottom: SPACING.xl,
-    },
-    greeting: {
-        ...TYPOGRAPHY.body,
-        marginBottom: SPACING.xs,
-    },
-    title: {
-        ...TYPOGRAPHY.h1,
-        marginBottom: SPACING.sm,
-        textAlign: 'center',
+        marginBottom: SPACING[8],
+        paddingTop: SPACING[4],
+        minHeight: 60,
     },
     subtitle: {
-        ...TYPOGRAPHY.body,
         textAlign: 'center',
+        marginTop: SPACING[2],
     },
-    statsCard: {
+    statsGrid: {
         flexDirection: 'row',
-        padding: SPACING.lg,
-        borderRadius: RADIUS.lg,
-        marginBottom: SPACING.xl,
-        shadowColor: THEMES.light.shadow,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 6,
+        gap: SPACING[4],
+        marginBottom: SPACING[8],
     },
-    statItem: {
+    statCard: {
         flex: 1,
         alignItems: 'center',
-    },
-    statDivider: {
-        width: 1,
-        backgroundColor: THEMES.light.border,
-        marginHorizontal: SPACING.lg,
-    },
-    statNumber: {
-        ...TYPOGRAPHY.h2,
-        fontWeight: '700',
     },
     statLabel: {
-        ...TYPOGRAPHY.caption,
-        marginTop: SPACING.xs,
         textAlign: 'center',
+        marginTop: SPACING[1],
     },
-    menuSection: {
-        marginBottom: SPACING.xl,
+    section: {
+        marginBottom: SPACING[8],
     },
-    menuTitle: {
-        ...TYPOGRAPHY.h3,
-        marginBottom: SPACING.lg,
+    sectionTitle: {
+        marginBottom: SPACING[4],
     },
-    menuButton: {
-        borderRadius: RADIUS.lg,
-        marginBottom: SPACING.lg,
-        shadowColor: THEMES.light.shadow,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 6,
+    primaryActionCard: {
+        marginBottom: SPACING[4],
     },
-    primaryButton: {
+    primaryAction: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: SPACING.lg,
+        marginBottom: SPACING[4],
     },
-    buttonIcon: {
+    actionIcon: {
         width: 48,
         height: 48,
-        borderRadius: 24,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderRadius: RADIUS.lg,
+        backgroundColor: THEMES.light.secondary,
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: SPACING.md,
+        marginRight: SPACING[3],
     },
-    buttonEmoji: {
-        fontSize: 24,
-    },
-    buttonContent: {
+    actionContent: {
         flex: 1,
     },
-    primaryButtonText: {
-        ...TYPOGRAPHY.h4,
-        color: '#FFFFFF',
-        marginBottom: SPACING.xs,
-    },
-    primaryButtonSubtext: {
-        ...TYPOGRAPHY.caption,
-        color: 'rgba(255, 255, 255, 0.8)',
+    primaryButton: {
+        width: '100%',
     },
     secondaryActions: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: SPACING.md,
+        gap: SPACING[4],
     },
-    secondaryButton: {
+    secondaryActionCard: {
         flex: 1,
+    },
+    secondaryActionContent: {
         alignItems: 'center',
-        padding: SPACING.lg,
-        borderRadius: RADIUS.md,
-        shadowColor: THEMES.light.shadow,
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 3,
+        paddingVertical: SPACING[2],
     },
-    secondaryButtonEmoji: {
-        fontSize: 28,
-        marginBottom: SPACING.sm,
+    secondaryActionIcon: {
+        marginBottom: SPACING[2],
     },
-    secondaryButtonText: {
-        ...TYPOGRAPHY.bodyMedium,
+    secondaryActionTitle: {
+        marginBottom: SPACING[2],
+    },
+    emptyState: {
+        alignItems: 'center',
+        paddingVertical: SPACING[8],
+    },
+    emptyStateIcon: {
+        marginBottom: SPACING[4],
+    },
+    emptyStateTitle: {
+        marginBottom: SPACING[2],
+    },
+    emptyStateDescription: {
+        textAlign: 'center',
+        marginBottom: SPACING[6],
+        maxWidth: 280,
+    },
+    emptyStateButton: {
+        minWidth: 160,
     },
     signOutButton: {
-        borderWidth: 1,
-        padding: SPACING.md,
-        borderRadius: RADIUS.md,
-        alignItems: 'center',
-        marginTop: SPACING.lg,
-    },
-    signOutButtonText: {
-        ...TYPOGRAPHY.bodyMedium,
+        marginTop: SPACING[4],
     },
 });
 

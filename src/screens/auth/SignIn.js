@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import {
     View,
-    Text,
-    TextInput,
-    TouchableOpacity,
     StyleSheet,
     Alert,
     ActivityIndicator,
     SafeAreaView,
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
+    StatusBar,
 } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { THEMES, TYPOGRAPHY, SPACING, RADIUS } from '../../constants/app';
+import { Button, Card, Text, Input, Icon, THEMES, SPACING, RADIUS } from '../../components/ui';
 
 const SignIn = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const { signIn } = useAuth();
 
@@ -39,68 +39,117 @@ const SignIn = ({ navigation }) => {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-            <KeyboardAvoidingView 
+            <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
+            <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardAvoidingView}
             >
-                <View style={styles.content}>
-                    <View style={styles.header}>
-                        <Text style={[styles.title, { color: theme.text }]}>Welcome Back</Text>
-                        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Sign in to your account</Text>
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* App Branding */}
+                    <View style={styles.brandingSection}>
+                        <View style={[styles.logoContainer, { backgroundColor: theme.primary }]}>
+                            <Icon name="book-open" size={32} color={theme.primaryForeground} />
+                        </View>
+                        <Text variant="display" style={styles.appName}>JournalApp</Text>
+                        <Text variant="muted" style={styles.appTagline}>
+                            Your personal journaling companion
+                        </Text>
                     </View>
 
-                    <View style={[styles.form, { backgroundColor: theme.surfaceElevated }]}>
-                        <View style={styles.inputContainer}>
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Email</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.border, color: theme.text }]}
-                                placeholder="Enter your email"
-                                placeholderTextColor={theme.textMuted}
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                            />
-                        </View>
+                    {/* Welcome Section */}
+                    <View style={styles.welcomeSection}>
+                        <Text variant="h1" style={styles.welcomeTitle}>Welcome Back</Text>
+                        <Text variant="muted" style={styles.welcomeSubtitle}>
+                            Sign in to continue your journaling journey
+                        </Text>
+                    </View>
 
-                        <View style={styles.inputContainer}>
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.border, color: theme.text }]}
-                                placeholder="Enter your password"
-                                placeholderTextColor={theme.textMuted}
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                            />
-                        </View>
+                    {/* Sign In Form */}
+                    <Card variant="elevated" style={styles.formCard}>
+                        <Card.Content style={styles.formContent}>
+                            <View style={styles.inputGroup}>
+                                <Input
+                                    label="Email Address"
+                                    placeholder="Enter your email"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                    leftIcon="mail"
+                                    style={styles.input}
+                                />
+                            </View>
 
-                        <TouchableOpacity
-                            style={[styles.button, { backgroundColor: loading ? theme.textMuted : theme.primary }]}
-                            onPress={handleSignIn}
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <ActivityIndicator color="#fff" />
-                            ) : (
-                                <Text style={styles.buttonText}>Sign In</Text>
-                            )}
-                        </TouchableOpacity>
+                            <View style={styles.inputGroup}>
+                                <Input
+                                    label="Password"
+                                    placeholder="Enter your password"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                    leftIcon="lock"
+                                    rightIcon={showPassword ? "eye-off" : "eye"}
+                                    onRightIconPress={() => setShowPassword(!showPassword)}
+                                    style={styles.input}
+                                />
+                            </View>
 
-                        <TouchableOpacity
-                            style={styles.linkButton}
+                            <Button
+                                onPress={handleSignIn}
+                                disabled={loading}
+                                loading={loading}
+                                size="lg"
+                                style={styles.signInButton}
+                            >
+                                {loading ? (
+                                    <View style={styles.loadingContent}>
+                                        <ActivityIndicator color={theme.primaryForeground} size="small" />
+                                        <Text variant="bodyMedium" style={[styles.buttonText, { color: theme.primaryForeground }]}>
+                                            Signing In...
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <View style={styles.buttonContent}>
+                                        <Icon name="log-in" size={16} color={theme.primaryForeground} style={styles.buttonIcon} />
+                                        <Text variant="bodyMedium" style={[styles.buttonText, { color: theme.primaryForeground }]}>
+                                            Sign In
+                                        </Text>
+                                    </View>
+                                )}
+                            </Button>
+                        </Card.Content>
+                    </Card>
+
+                    {/* Sign Up Link */}
+                    <View style={styles.signUpSection}>
+                        <Text variant="body" style={[styles.signUpText, { color: theme.mutedForeground }]}>
+                            Don't have an account?
+                        </Text>
+                        <Button
+                            variant="ghost"
                             onPress={() => navigation.navigate('SignUp')}
+                            style={styles.signUpButton}
                         >
-                            <Text style={[styles.linkText, { color: theme.textSecondary }]}>
-                                Don't have an account?{' '}
-                                <Text style={[styles.linkTextHighlight, { color: theme.primary }]}>Sign Up</Text>
+                            <Text variant="bodyMedium" style={[styles.signUpButtonText, { color: theme.primary }]}>
+                                Create Account
                             </Text>
-                        </TouchableOpacity>
+                        </Button>
                     </View>
-                </View>
+
+                    {/* Footer */}
+                    <View style={styles.footer}>
+                        <Text variant="small" style={[styles.footerText, { color: theme.mutedForeground }]}>
+                            By signing in, you agree to our Terms of Service and Privacy Policy
+                        </Text>
+                    </View>
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -113,73 +162,113 @@ const styles = StyleSheet.create({
     keyboardAvoidingView: {
         flex: 1,
     },
-    content: {
+    scrollView: {
         flex: 1,
-        justifyContent: 'center',
-        padding: SPACING.lg,
     },
-    header: {
+    scrollContent: {
+        flexGrow: 1,
+        padding: SPACING[6],
+        paddingTop: SPACING[10],
+        paddingBottom: SPACING[8],
+    },
+    brandingSection: {
         alignItems: 'center',
-        marginBottom: SPACING.xxl,
+        marginBottom: SPACING[12],
     },
-    title: {
-        ...TYPOGRAPHY.h1,
-        textAlign: 'center',
-        marginBottom: SPACING.sm,
-    },
-    subtitle: {
-        ...TYPOGRAPHY.body,
-        textAlign: 'center',
-    },
-    form: {
-        padding: SPACING.xl,
-        borderRadius: RADIUS.xl,
+    logoContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: SPACING[4],
         shadowColor: THEMES.light.shadow,
         shadowOffset: {
             width: 0,
-            height: 8,
+            height: 4,
         },
-        shadowOpacity: 0.1,
-        shadowRadius: 24,
-        elevation: 12,
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 8,
     },
-    inputContainer: {
-        marginBottom: SPACING.lg,
+    appName: {
+        marginBottom: SPACING[2],
+        fontWeight: '700',
     },
-    inputLabel: {
-        ...TYPOGRAPHY.bodyMedium,
-        marginBottom: SPACING.sm,
+    appTagline: {
+        textAlign: 'center',
+        maxWidth: 280,
+    },
+    welcomeSection: {
+        alignItems: 'center',
+        marginBottom: SPACING[8],
+    },
+    welcomeTitle: {
+        marginBottom: SPACING[2],
+        textAlign: 'center',
+    },
+    welcomeSubtitle: {
+        textAlign: 'center',
+        maxWidth: 320,
+    },
+    formCard: {
+        marginBottom: SPACING[6],
+    },
+    formContent: {
+        paddingVertical: SPACING[6],
+        paddingHorizontal: SPACING[4],
+    },
+    inputGroup: {
+        marginBottom: SPACING[5],
     },
     input: {
-        borderWidth: 1,
-        borderRadius: RADIUS.md,
-        padding: SPACING.md,
-        ...TYPOGRAPHY.body,
-        minHeight: 48,
+        minHeight: 56,
     },
-    button: {
-        padding: SPACING.md,
-        borderRadius: RADIUS.md,
+    signInButton: {
+        marginTop: SPACING[4],
+        minHeight: 56,
+    },
+    buttonContent: {
+        flexDirection: 'row',
         alignItems: 'center',
-        marginTop: SPACING.lg,
-        minHeight: 48,
         justifyContent: 'center',
     },
-    buttonText: {
-        color: '#FFFFFF',
-        ...TYPOGRAPHY.bodyMedium,
-    },
-    linkButton: {
-        marginTop: SPACING.lg,
+    loadingContent: {
+        flexDirection: 'row',
         alignItems: 'center',
-        padding: SPACING.sm,
+        justifyContent: 'center',
     },
-    linkText: {
-        ...TYPOGRAPHY.caption,
+    buttonIcon: {
+        marginRight: SPACING[2],
     },
-    linkTextHighlight: {
-        ...TYPOGRAPHY.caption,
+    buttonText: {
         fontWeight: '600',
+    },
+    signUpSection: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: SPACING[8],
+        flexWrap: 'wrap',
+    },
+    signUpText: {
+        marginRight: SPACING[2],
+    },
+    signUpButton: {
+        paddingHorizontal: SPACING[2],
+        paddingVertical: SPACING[1],
+    },
+    signUpButtonText: {
+        fontWeight: '600',
+    },
+    footer: {
+        alignItems: 'center',
+        paddingHorizontal: SPACING[4],
+    },
+    footerText: {
+        textAlign: 'center',
+        lineHeight: 18,
+        maxWidth: 300,
     },
 });
 
