@@ -5,9 +5,11 @@ import {
     Alert,
     ScrollView,
     FlatList,
-    SafeAreaView,
     StatusBar,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserProfileService } from '../../services/api/userProfile';
 import { Button, Card, Text, Input, Icon, THEMES, SPACING, RADIUS } from '../../components/ui';
@@ -92,7 +94,6 @@ const Journal = () => {
             tags: item.tags ? item.tags.join(', ') : '',
             isPrivate: item.isPrivate,
         });
-        setShowNewEntry(false); // Close new entry form if open
     };
 
     const handleUpdateEntry = async () => {
@@ -269,7 +270,7 @@ const Journal = () => {
 
     if (loading) {
         return (
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+            <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
                 <View style={styles.loadingContainer}>
                     <Icon name="loader" size={48} color={theme.primary} />
                     <Text variant="body" style={styles.loadingText}>Loading journals...</Text>
@@ -279,7 +280,7 @@ const Journal = () => {
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
             <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
 
             {/* Header */}
@@ -290,20 +291,33 @@ const Journal = () => {
                     size="sm"
                     onPress={() => setShowNewEntry(!showNewEntry)}
                 >
-                    <Icon
-                        name={showNewEntry ? "x" : "plus"}
-                        size={16}
-                        color={showNewEntry ? theme.foreground : theme.primaryForeground}
-                        style={styles.buttonIcon}
-                    />
-                    {showNewEntry ? 'Cancel' : 'New Entry'}
+                    <View style={styles.buttonContent}>
+                        <Icon
+                            name={showNewEntry ? "x" : "plus"}
+                            size={16}
+                            color={showNewEntry ? theme.foreground : theme.primaryForeground}
+                            style={styles.buttonIcon}
+                        />
+                        <Text style={{ color: showNewEntry ? theme.foreground : theme.primaryForeground }}>
+                            {showNewEntry ? 'Cancel' : 'New Entry'}
+                        </Text>
+                    </View>
                 </Button>
             </View>
 
-            {/* Edit Entry Form */}
-            {editingEntry && (
-                <ScrollView style={styles.formScrollView}>
-                    <Card variant="elevated" style={styles.formCard}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.mainContent}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            >
+                {/* Edit Entry Form */}
+                {editingEntry && (
+                    <ScrollView
+                        style={styles.formScrollView}
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <Card variant="elevated" style={styles.formCard}>
                         <Card.Header>
                             <Text variant="h3">Edit Journal Entry</Text>
                         </Card.Header>
@@ -361,13 +375,17 @@ const Journal = () => {
                                 onPress={() => setEditEntry({ ...editEntry, isPrivate: !editEntry.isPrivate })}
                                 style={styles.privateToggle}
                             >
-                                <Icon
-                                    name={editEntry.isPrivate ? "lock" : "globe"}
-                                    size={16}
-                                    color={theme.foreground}
-                                    style={styles.toggleIcon}
-                                />
-                                {editEntry.isPrivate ? 'Private' : 'Public'}
+                                <View style={styles.buttonContent}>
+                                    <Icon
+                                        name={editEntry.isPrivate ? "lock" : "globe"}
+                                        size={16}
+                                        color={theme.foreground}
+                                        style={styles.toggleIcon}
+                                    />
+                                    <Text style={{ color: theme.foreground }}>
+                                        {editEntry.isPrivate ? 'Private' : 'Public'}
+                                    </Text>
+                                </View>
                             </Button>
                         </Card.Content>
                         <Card.Footer>
@@ -389,13 +407,13 @@ const Journal = () => {
                                 </Button>
                             </View>
                         </Card.Footer>
-                    </Card>
-                </ScrollView>
-            )}
+                        </Card>
+                    </ScrollView>
+                )}
 
-            {/* New Entry Form */}
-            {showNewEntry && !editingEntry && (
-                <ScrollView style={styles.formScrollView}>
+                {/* New Entry Form */}
+                {showNewEntry && !editingEntry && (
+                    <ScrollView style={styles.formScrollView}>
                     <Card variant="elevated" style={styles.formCard}>
                         <Card.Header>
                             <Text variant="h3">New Journal Entry</Text>
@@ -454,13 +472,17 @@ const Journal = () => {
                                 onPress={() => setNewEntry({ ...newEntry, isPrivate: !newEntry.isPrivate })}
                                 style={styles.privateToggle}
                             >
-                                <Icon
-                                    name={newEntry.isPrivate ? "lock" : "globe"}
-                                    size={16}
-                                    color={theme.foreground}
-                                    style={styles.toggleIcon}
-                                />
-                                {newEntry.isPrivate ? 'Private' : 'Public'}
+                                <View style={styles.buttonContent}>
+                                    <Icon
+                                        name={newEntry.isPrivate ? "lock" : "globe"}
+                                        size={16}
+                                        color={theme.foreground}
+                                        style={styles.toggleIcon}
+                                    />
+                                    <Text style={{ color: theme.foreground }}>
+                                        {newEntry.isPrivate ? 'Private' : 'Public'}
+                                    </Text>
+                                </View>
                             </Button>
                         </Card.Content>
                         <Card.Footer>
@@ -474,17 +496,19 @@ const Journal = () => {
                             </Button>
                         </Card.Footer>
                     </Card>
-                </ScrollView>
-            )}
+                    </ScrollView>
+                )}
 
-            {/* Journal Entries List */}
-            <FlatList
-                data={journals}
-                renderItem={renderJournalEntry}
-                keyExtractor={(item) => item.$id}
-                style={styles.journalList}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
+                {/* Journal Entries List */}
+                <FlatList
+                    data={journals}
+                    renderItem={renderJournalEntry}
+                    keyExtractor={(item) => item.$id}
+                    style={styles.journalList}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    keyboardDismissMode="none"
                 ListEmptyComponent={
                     <Card variant="outlined" style={styles.emptyCard}>
                         <Card.Content style={styles.emptyContainer}>
@@ -498,13 +522,16 @@ const Journal = () => {
                                 onPress={() => setShowNewEntry(true)}
                                 style={styles.emptyButton}
                             >
-                                <Icon name="plus" size={16} color={theme.foreground} />
-                                Write First Entry
+                                <View style={styles.buttonContent}>
+                                    <Icon name="plus" size={16} color={theme.foreground} style={styles.buttonIcon} />
+                                    <Text style={{ color: theme.foreground }}>Write First Entry</Text>
+                                </View>
                             </Button>
                         </Card.Content>
                     </Card>
-                }
-            />
+                    }
+                />
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
@@ -537,6 +564,9 @@ const styles = StyleSheet.create({
     },
     buttonIcon: {
         marginRight: SPACING[2],
+    },
+    mainContent: {
+        flex: 1,
     },
     formScrollView: {
         maxHeight: '80%',
@@ -605,6 +635,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingVertical: SPACING[4],
+        paddingBottom: SPACING[20],
     },
     journalCard: {
         marginBottom: SPACING[4],

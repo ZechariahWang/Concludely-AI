@@ -4,9 +4,9 @@ import {
     StyleSheet,
     Alert,
     ScrollView,
-    SafeAreaView,
     StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Card, Text, Icon, THEMES, SPACING, RADIUS } from '../../components/ui';
 

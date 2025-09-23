@@ -4,12 +4,12 @@ import {
     StyleSheet,
     Alert,
     ActivityIndicator,
-    SafeAreaView,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
     StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Card, Text, Input, Icon, THEMES, SPACING, RADIUS } from '../../components/ui';
 
@@ -104,7 +104,6 @@ const SignIn = ({ navigation }) => {
                             <Button
                                 onPress={handleSignIn}
                                 disabled={loading}
-                                loading={loading}
                                 size="lg"
                                 style={styles.signInButton}
                             >

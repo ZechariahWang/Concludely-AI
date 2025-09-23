@@ -7,9 +7,9 @@ import {
     ScrollView,
     Image,
     Platform,
-    SafeAreaView,
     StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { UserProfileService } from '../../services/api/userProfile';
 import { useAuth } from '../../contexts/AuthContext';

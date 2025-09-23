@@ -5,8 +5,8 @@ import {
     TouchableOpacity,
     StyleSheet,
     Platform,
-    SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Icon, THEMES, TYPOGRAPHY, SPACING, RADIUS } from '../ui';
 
@@ -42,7 +42,8 @@ const BottomNavigationBar = ({ currentRoute }) => {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.surfaceElevated, borderTopColor: theme.border }]}>
+        <SafeAreaView style={[styles.safeArea]} edges={['bottom']}>
+            <View style={[styles.container, { backgroundColor: theme.surfaceElevated, borderTopColor: theme.border }]}>
                 {navigationItems.map((item, index) => {
                     const isActive = currentRoute === item.route;
 
@@ -70,11 +71,19 @@ const BottomNavigationBar = ({ currentRoute }) => {
                         </TouchableOpacity>
                     );
                 })}
-        </View>
+            </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    safeArea: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'transparent',
+    },
     container: {
         flexDirection: 'row',
         paddingVertical: SPACING[4],
@@ -90,7 +99,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         shadowRadius: 8,
         elevation: 8,
-        paddingBottom: SPACING[6],
     },
     tabItem: {
         flex: 1,

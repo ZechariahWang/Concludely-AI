@@ -4,12 +4,12 @@ import {
     StyleSheet,
     Alert,
     ActivityIndicator,
-    SafeAreaView,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
     StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Card, Text, Input, Icon, THEMES, SPACING, RADIUS } from '../../components/ui';
 
@@ -233,7 +233,6 @@ const SignUp = ({ navigation }) => {
                             <Button
                                 onPress={handleSignUp}
                                 disabled={loading || !isPasswordValid || password !== confirmPassword}
-                                loading={loading}
                                 size="lg"
                                 style={styles.signUpButton}
                             >

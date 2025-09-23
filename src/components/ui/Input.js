@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { THEMES, TYPOGRAPHY, SPACING, RADIUS } from '../../constants/app';
 
 const Input = ({
@@ -14,6 +14,9 @@ const Input = ({
     style,
     inputStyle,
     theme = 'light',
+    leftIcon,
+    rightIcon,
+    onRightIconPress,
     ...props
 }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -101,7 +104,12 @@ const Input = ({
                     {label}
                 </Text>
             )}
-            <View style={[getContainerStyles(), getSizeStyles()]}>
+            <View style={[getContainerStyles(), getSizeStyles(), styles.inputContainer]}>
+                {leftIcon && (
+                    <View style={styles.iconContainer}>
+                        {leftIcon}
+                    </View>
+                )}
                 <TextInput
                     style={[getTextStyles(), inputStyle]}
                     value={value}
@@ -113,6 +121,15 @@ const Input = ({
                     onBlur={() => setIsFocused(false)}
                     {...props}
                 />
+                {rightIcon && (
+                    <TouchableOpacity
+                        style={styles.iconContainer}
+                        onPress={onRightIconPress}
+                        disabled={disabled}
+                    >
+                        {rightIcon}
+                    </TouchableOpacity>
+                )}
             </View>
             {error && (
                 <Text style={[styles.error, { color: colors.destructive }]}>
@@ -131,6 +148,15 @@ const styles = StyleSheet.create({
     error: {
         ...TYPOGRAPHY.small,
         marginTop: SPACING[1],
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconContainer: {
+        paddingHorizontal: SPACING[2],
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

@@ -175,7 +175,7 @@ const Button = ({
                     style={{ marginRight: children ? SPACING[2] : 0 }}
                 />
             )}
-            {children && (
+            {children && (typeof children === 'string' ? (
                 <Text
                     style={[
                         styles.text,
@@ -186,7 +186,9 @@ const Button = ({
                 >
                     {children}
                 </Text>
-            )}
+            ) : (
+                children
+            ))}
         </TouchableOpacity>
     );
 };
