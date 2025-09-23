@@ -1,18 +1,20 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
-import { THEMES, TYPOGRAPHY, SPACING } from '../../constants/app';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Card, Text, THEMES, SPACING } from '../ui';
 
 const Loading = () => {
     const theme = THEMES.light;
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={[styles.loadingCard, { backgroundColor: theme.surfaceElevated }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-                <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
-                    Loading...
-                </Text>
-            </View>
+            <Card variant="elevated" style={styles.loadingCard}>
+                <Card.Content style={styles.loadingContent}>
+                    <ActivityIndicator size="large" color={theme.primary} />
+                    <Text variant="body" style={styles.loadingText}>
+                        Loading...
+                    </Text>
+                </Card.Content>
+            </Card>
         </View>
     );
 };
@@ -22,24 +24,16 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: SPACING.lg,
+        padding: SPACING[6],
     },
     loadingCard: {
-        padding: SPACING.xl,
-        borderRadius: 20,
+        minWidth: 200,
+    },
+    loadingContent: {
         alignItems: 'center',
-        shadowColor: THEMES.light.shadow,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 8,
     },
     loadingText: {
-        ...TYPOGRAPHY.body,
-        marginTop: SPACING.md,
+        marginTop: SPACING[4],
     },
 });
 

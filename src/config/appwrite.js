@@ -6,7 +6,7 @@ import {
     APPWRITE_USERS_COLLECTION_ID,
     APPWRITE_JOURNALS_COLLECTION_ID,
     APPWRITE_PROFILE_PICTURES_BUCKET_ID
-} from 'react-native-dotenv';
+} from '@env';
 
 const client = new Client()
     .setEndpoint(APPWRITE_ENDPOINT)

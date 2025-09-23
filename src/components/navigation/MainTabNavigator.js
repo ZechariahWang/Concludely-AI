@@ -20,9 +20,7 @@ const MainTabNavigator = ({ children }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.content}>
-                {children}
-            </View>
+            {children}
             <BottomNavigationBar
                 currentRoute={currentRoute}
             />
@@ -33,9 +31,7 @@ const MainTabNavigator = ({ children }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    content: {
-        flex: 1,
+        backgroundColor: 'transparent',
     },
 });
 

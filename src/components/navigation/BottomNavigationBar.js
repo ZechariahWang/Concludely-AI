@@ -5,10 +5,10 @@ import {
     TouchableOpacity,
     StyleSheet,
     Platform,
-    SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { THEMES, TYPOGRAPHY, SPACING, RADIUS } from '../../constants/app';
+import { Icon, THEMES, TYPOGRAPHY, SPACING, RADIUS } from '../ui';
 
 const BottomNavigationBar = ({ currentRoute }) => {
     const navigation = useNavigation();
@@ -18,19 +18,19 @@ const BottomNavigationBar = ({ currentRoute }) => {
         {
             name: 'Home',
             label: 'Home',
-            icon: '🏠',
+            icon: 'home',
             route: 'Home'
         },
         {
             name: 'Journal',
             label: 'Journal',
-            icon: '📝',
+            icon: 'edit-3',
             route: 'Journal'
         },
         {
             name: 'Profile',
             label: 'Profile',
-            icon: '👤',
+            icon: 'user',
             route: 'Profile'
         }
     ];
@@ -42,7 +42,7 @@ const BottomNavigationBar = ({ currentRoute }) => {
     };
 
     return (
-        <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+        <SafeAreaView style={[styles.safeArea]} edges={['bottom']}>
             <View style={[styles.container, { backgroundColor: theme.surfaceElevated, borderTopColor: theme.border }]}>
                 {navigationItems.map((item, index) => {
                     const isActive = currentRoute === item.route;
@@ -50,29 +50,20 @@ const BottomNavigationBar = ({ currentRoute }) => {
                     return (
                         <TouchableOpacity
                             key={item.name}
-                            style={[
-                                styles.tabItem,
-                                isActive && [styles.activeTabItem, { backgroundColor: theme.primaryLight }]
-                            ]}
+                            style={styles.tabItem}
                             onPress={() => handlePress(item.route)}
                             activeOpacity={0.7}
                         >
-                            {isActive && (
-                                <View style={[styles.activeIndicator, { backgroundColor: theme.primary }]} />
-                            )}
-                            <View style={[
-                                styles.iconContainer,
-                                isActive && styles.activeIconContainer
-                            ]}>
-                                <Text style={[
-                                    styles.icon,
-                                    isActive && styles.activeIcon
-                                ]}>
-                                    {item.icon}
-                                </Text>
+                            <View style={styles.iconContainer}>
+                                <Icon
+                                    name={item.icon}
+                                    size={24}
+                                    color={isActive ? theme.primary : theme.mutedForeground}
+                                />
                             </View>
                             <Text style={[
                                 styles.label,
+                                { color: isActive ? theme.primary : theme.mutedForeground },
                                 isActive && styles.activeLabel
                             ]}>
                                 {item.label}
@@ -87,81 +78,49 @@ const BottomNavigationBar = ({ currentRoute }) => {
 
 const styles = StyleSheet.create({
     safeArea: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
         backgroundColor: 'transparent',
     },
     container: {
         flexDirection: 'row',
-        paddingVertical: SPACING.xs,
-        paddingHorizontal: SPACING.lg,
+        paddingVertical: SPACING[4],
+        paddingHorizontal: SPACING[4],
         borderTopWidth: 1,
-        borderTopColor: '#E5E5EA',
-        backgroundColor: '#F8F9FA',
-        shadowColor: '#000',
+        borderTopColor: THEMES.light.border,
+        backgroundColor: THEMES.light.card,
+        shadowColor: THEMES.light.shadow,
         shadowOffset: {
             width: 0,
             height: -2,
         },
-        shadowOpacity: 0.08,
+        shadowOpacity: 1,
         shadowRadius: 8,
         elevation: 8,
-        ...Platform.select({
-            ios: {
-                paddingBottom: SPACING.xs,
-            },
-            android: {
-                paddingBottom: SPACING.sm,
-            },
-        }),
     },
     tabItem: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: SPACING.sm,
-        paddingHorizontal: SPACING.xs,
-        borderRadius: RADIUS.xl,
-        position: 'relative',
-        minHeight: 48,
-    },
-    activeTabItem: {
-        backgroundColor: '#007AFF',
-        transform: [{ scale: 1.02 }],
+        paddingVertical: SPACING[3],
+        paddingHorizontal: SPACING[2],
+        borderRadius: RADIUS.lg,
+        minHeight: 60,
     },
     iconContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 2,
-    },
-    activeIconContainer: {
-        transform: [{ scale: 1.05 }],
-    },
-    icon: {
-        fontSize: 20,
-        textAlign: 'center',
-        color: '#666666',
-    },
-    activeIcon: {
-        fontSize: 21,
-        color: '#FFFFFF',
+        marginBottom: SPACING[1],
     },
     label: {
-        fontSize: 11,
-        fontWeight: '500',
+        ...TYPOGRAPHY.caption,
         textAlign: 'center',
         letterSpacing: 0.2,
-        color: '#666666',
     },
     activeLabel: {
         fontWeight: '600',
-        fontSize: 11,
-        color: '#FFFFFF',
-    },
-    activeIndicator: {
-        position: 'absolute',
-        top: 6,
-        width: 20,
-        height: 2,
-        borderRadius: 1,
     },
 });
 

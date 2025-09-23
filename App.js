@@ -12,6 +12,25 @@ import MainTabNavigator from './src/components/navigation/MainTabNavigator';
 
 const Stack = createStackNavigator();
 
+// Create stable screen components outside of Navigation to prevent recreation
+const HomeScreen = () => (
+    <MainTabNavigator>
+        <Home />
+    </MainTabNavigator>
+);
+
+const ProfileScreen = () => (
+    <MainTabNavigator>
+        <Profile />
+    </MainTabNavigator>
+);
+
+const JournalScreen = () => (
+    <MainTabNavigator>
+        <Journal />
+    </MainTabNavigator>
+);
+
 const Navigation = () => {
     const { user, loading } = useAuth();
 
@@ -19,42 +38,38 @@ const Navigation = () => {
         return <Loading />;
     }
 
-    const MainStackScreen = ({ route }) => {
-        const { name } = route;
-        let ScreenComponent;
-
-        switch (name) {
-            case 'Home':
-                ScreenComponent = Home;
-                break;
-            case 'Profile':
-                ScreenComponent = Profile;
-                break;
-            case 'Journal':
-                ScreenComponent = Journal;
-                break;
-            default:
-                ScreenComponent = Home;
-        }
-
-        return (
-            <MainTabNavigator>
-                <ScreenComponent />
-            </MainTabNavigator>
-        );
-    };
-
     return (
         <Stack.Navigator
             screenOptions={{
                 headerShown: false,
+                animationEnabled: false,
+                gestureEnabled: false,
+                cardStyleInterpolator: () => ({
+                    cardStyle: {
+                        opacity: 1,
+                    },
+                }),
+                transitionSpec: {
+                    open: {
+                        animation: 'timing',
+                        config: {
+                            duration: 0,
+                        },
+                    },
+                    close: {
+                        animation: 'timing',
+                        config: {
+                            duration: 0,
+                        },
+                    },
+                },
             }}
         >
             {user ? (
                 <>
-                    <Stack.Screen name="Home" component={MainStackScreen} />
-                    <Stack.Screen name="Profile" component={MainStackScreen} />
-                    <Stack.Screen name="Journal" component={MainStackScreen} />
+                    <Stack.Screen name="Home" component={HomeScreen} />
+                    <Stack.Screen name="Profile" component={ProfileScreen} />
+                    <Stack.Screen name="Journal" component={JournalScreen} />
                 </>
             ) : (
                 <>
