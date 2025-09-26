@@ -1,5 +1,6 @@
-AI Model currently in a seperate repository.
+AI Model and backend currently in a seperate repository. Currently, the frontend is WIP.
 
 wip
+
 
 
